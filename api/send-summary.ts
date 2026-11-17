@@ -4,34 +4,62 @@ import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin
 import { getAuth, type DecodedIdToken } from 'firebase-admin/auth';
 import { getFirestore, type QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
-// Inicialización de Firebase Admin en el servidor (Singleton)
-if (getApps().length === 0) {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-    try {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-      initializeApp({
-        credential: cert(serviceAccount),
-      });
-    } catch {
-      initializeApp({
-        credential: applicationDefault(),
-      });
-    }
-  } else if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      }),
-    });
-  } else {
-    initializeApp();
+/**
+ * Normaliza la clave privada de Firebase Admin para que funcione sin importar cómo
+ * fue copiada en las variables de entorno de Vercel (con comillas envolventes,
+ * saltos de línea reales o '\n' literales).
+ */
+function formatPrivateKey(key: string): string {
+  let cleaned = key.trim();
+
+  // Remueve comillas envolventes si el valor fue pegado con comillas dobles o simples
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.substring(1, cleaned.length - 1);
   }
+
+  // Convierte secuencias literales de escape '\n' a saltos de línea reales (\n)
+  return cleaned.replace(/\\n/g, '\n');
 }
 
-const adminAuth = getAuth();
-const adminDb = getFirestore();
+/**
+ * Inicializa Firebase Admin de forma segura como Singleton en Vercel Serverless.
+ */
+function initFirebaseAdmin() {
+  if (getApps().length === 0) {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        initializeApp({
+          credential: cert(serviceAccount),
+        });
+      } catch (err) {
+        console.error('Error al parsear FIREBASE_SERVICE_ACCOUNT_KEY, intentando applicationDefault:', err);
+        initializeApp({
+          credential: applicationDefault(),
+        });
+      }
+    } else if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+      const privateKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
+      initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey,
+        }),
+      });
+    } else {
+      initializeApp();
+    }
+  }
+
+  return {
+    adminAuth: getAuth(),
+    adminDb: getFirestore(),
+  };
+}
 
 interface TaskData {
   title: string;
@@ -48,6 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const { adminAuth, adminDb } = initFirebaseAdmin();
+
     // 1. Verificación de seguridad del Firebase ID Token
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
