@@ -6,6 +6,7 @@ import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { getFirebaseErrorMessage } from '../utils/firebaseErrors';
+import { sendTaskSummaryEmail } from '../services/emailService';
 import type { Task, CreateTaskPayload, UpdateTaskPayload } from '../types/task';
 
 export const Dashboard: React.FC = () => {
@@ -27,6 +28,13 @@ export const Dashboard: React.FC = () => {
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  // Estados para el envío de resumen de tareas mediante Amazon SES
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailFeedback, setEmailFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
 
   const navigate = useNavigate();
 
@@ -95,6 +103,31 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  // Solicitar envío de resumen de tareas por Amazon SES
+  const handleSendSummary = async () => {
+    if (!currentUser) return;
+    setEmailFeedback(null);
+    setIsSendingEmail(true);
+
+    try {
+      // Obtenemos el token criptográfico firmado para autenticar la función serverless
+      const idToken = await currentUser.getIdToken();
+      const response = await sendTaskSummaryEmail(idToken);
+      setEmailFeedback({
+        type: 'success',
+        message: `${response.message} (Destinatario verificado: ${response.recipient})`,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al solicitar el envío de correo.';
+      setEmailFeedback({
+        type: 'error',
+        message: msg,
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   // Contadores de tareas para métricas
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.completed).length;
@@ -108,7 +141,7 @@ export const Dashboard: React.FC = () => {
           <span className="navbar-logo" aria-hidden="true">📋</span>
           <div>
             <h1 className="navbar-title">TaskManager SPA</h1>
-            <span className="navbar-badge">Cloud Firestore</span>
+            <span className="navbar-badge">Firestore + AWS SES</span>
           </div>
         </div>
 
@@ -138,7 +171,32 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Banner con saludo y métricas de tareas */}
+        {/* Feedback de envío de resumen por correo */}
+        {emailFeedback && (
+          <div
+            className={`alert ${
+              emailFeedback.type === 'success' ? 'alert-success' : 'alert-error'
+            } mb-4`}
+            role="alert"
+          >
+            <span className="alert-icon" aria-hidden="true">
+              {emailFeedback.type === 'success' ? '✅' : '⚠️'}
+            </span>
+            <div className="alert-body">
+              <span>{emailFeedback.message}</span>
+            </div>
+            <button
+              type="button"
+              className="alert-close-btn"
+              onClick={() => setEmailFeedback(null)}
+              aria-label="Cerrar notificación"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Banner con saludo, métricas y botón de Amazon SES */}
         <div className="welcome-banner">
           <div className="welcome-header">
             <div>
@@ -146,7 +204,7 @@ export const Dashboard: React.FC = () => {
                 Mis Tareas Personales
               </h2>
               <p className="welcome-subtitle">
-                Gestión en tiempo real sincronizada con Google Cloud Firestore.
+                Gestión en tiempo real sincronizada con Google Cloud Firestore y Amazon SES.
               </p>
             </div>
 
@@ -164,6 +222,31 @@ export const Dashboard: React.FC = () => {
                 <span className="stat-label">Completadas</span>
               </div>
             </div>
+          </div>
+
+          <div className="welcome-actions">
+            <button
+              type="button"
+              className="btn btn-ses-email"
+              onClick={handleSendSummary}
+              disabled={isSendingEmail || loading}
+              title="Generar y enviar un resumen del estado de tus tareas mediante Amazon SES"
+            >
+              {isSendingEmail ? (
+                <>
+                  <span className="btn-spinner" aria-hidden="true" />
+                  <span>Enviando resumen...</span>
+                </>
+              ) : (
+                <>
+                  <span aria-hidden="true">✉️</span>
+                  <span>Enviar resumen por correo</span>
+                </>
+              )}
+            </button>
+            <span className="ses-sandbox-note">
+              🔒 Protegido con Firebase Admin & AWS SES Sandbox
+            </span>
           </div>
         </div>
 
