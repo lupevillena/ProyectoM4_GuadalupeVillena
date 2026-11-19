@@ -1,28 +1,21 @@
 # TaskManager SPA — Proyecto Integrador 4
 
-[![Deploy with Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://proyecto-m4-guadalupe-villena.vercel.app)
-[![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-8-purple?logo=vite)](https://vitejs.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-orange?logo=firebase)](https://firebase.google.com/)
-[![AWS SES](https://img.shields.io/badge/AWS-SES%20Email-232F3E?logo=amazon-aws)](https://aws.amazon.com/ses/)
-[![Vitest](https://img.shields.io/badge/Tests-Vitest%20%26%20RTL-brightgreen?logo=vitest)](https://vitest.dev/)
 
 Aplicación web SPA (*Single Page Application*) moderna, escalable y segura para la gestión de tareas personales en tiempo real, desarrollada con **React**, **TypeScript** y **Vite**, respaldada por **Google Firebase** (Authentication & Cloud Firestore), notificaciones automatizadas por correo electrónico con **Amazon Simple Email Service (SES)** mediante una función Serverless en **Vercel**, y suite de pruebas unitarias y de integración con **Vitest** y **React Testing Library**.
 
 ---
 
-## 🌐 Aplicación en Producción
+##  Aplicación en Producción
 
 * **URL del Despliegue Oficial en Vercel:**  
-  👉 **[https://proyecto-m4-guadalupe-villena.vercel.app](https://proyecto-m4-guadalupe-villena.vercel.app)**
+   **[https://proyecto-m4-guadalupe-villena.vercel.app](https://proyecto-m4-guadalupe-villena.vercel.app)**
 
 * **Repositorio en GitHub:**  
-  👉 **[https://github.com/lupevillena/ProyectoM4_GuadalupeVillena](https://github.com/lupevillena/ProyectoM4_GuadalupeVillena)**
+   **[https://github.com/lupevillena/ProyectoM4_GuadalupeVillena](https://github.com/lupevillena/ProyectoM4_GuadalupeVillena)**
 
 ---
 
-## 🛠️ Stack Tecnológico
+##  Stack Tecnológico
 
 | Capa | Tecnología | Propósito |
 | :--- | :--- | :--- |
@@ -40,7 +33,7 @@ Aplicación web SPA (*Single Page Application*) moderna, escalable y segura para
 
 ---
 
-## 📋 Funcionalidades Principales
+##  Funcionalidades Principales
 
 ### 1. Autenticación y Control de Acceso
 * Registro de usuarios con validación de contraseña (mínimo 6 caracteres, confirmación coincidente).
@@ -66,7 +59,7 @@ Aplicación web SPA (*Single Page Application*) moderna, escalable y segura para
 
 ---
 
-## 🔒 Arquitectura de Seguridad y Flujo de Datos
+##  Arquitectura de Seguridad y Flujo de Datos
 
 ### 1. Principios de Seguridad
 1. **Aislamiento de Secretos (Zero Secrets in Frontend):**  
@@ -142,7 +135,7 @@ service cloud.firestore {
 
 ---
 
-## 🚀 Instalación y Ejecución Local
+##  Instalación y Ejecución Local
 
 ### Prerrequisitos
 * **Node.js** >= v20.0.0
@@ -181,7 +174,7 @@ service cloud.firestore {
 
 ---
 
-## ⚙️ Variables de Entorno
+##  Variables de Entorno
 
 El archivo `.env.example` detalla las variables requeridas por la aplicación:
 
@@ -209,7 +202,7 @@ El archivo `.env.example` detalla las variables requeridas por la aplicación:
 
 ---
 
-## 🧪 Pruebas Automatizadas
+##  Pruebas Automatizadas
 
 El proyecto cuenta con una suite completa de **41 pruebas automatizadas** implementadas con **Vitest** y **React Testing Library**, diseñadas bajo la premisa de aislar servicios externos mediante mocks controlados:
 
@@ -235,7 +228,7 @@ npm run test:watch
 
 ---
 
-## ☁️ Despliegue en Vercel
+##  Despliegue en Vercel
 
 La aplicación está configurada con despliegue continuo (CI/CD):
 1. Cada push a la rama `main` en GitHub dispara una compilación automática en Vercel.
@@ -247,7 +240,7 @@ La aplicación está configurada con despliegue continuo (CI/CD):
 
 ---
 
-## 🤖 Uso de Inteligencia Artificial (IA) en el Desarrollo
+## Uso de Inteligencia Artificial (IA) en el Desarrollo
 
 Durante el ciclo de vida de este proyecto, se integró el uso estratégico de herramientas de Inteligencia Artificial como asistente técnico avanzado y mentor de desarrollo de software, elevando los estándares de calidad de código, arquitectura y seguridad.
 
@@ -312,7 +305,7 @@ A continuación se destacan ejemplos representativos de los prompts estructurado
 
 ---
 
-## 👩‍💻 Autora
+## Autora
 
 * **Guadalupe Villena** — Proyecto Integrador — Módulo 4
 * Repositorio: [github.com/lupevillena/ProyectoM4_GuadalupeVillena](https://github.com/lupevillena/ProyectoM4_GuadalupeVillena)
